@@ -20,15 +20,20 @@ import os
 import sys
 import time
 
-import mesos
-import mesos_pb2
+try:
+    from mesos.native import MesosExecutorDriver, MesosSchedulerDriver
+    from mesos.interface import Executor, Scheduler
+    from mesos.interface import mesos_pb2
+except ImportError:
+    from mesos import Executor, MesosExecutorDriver, MesosSchedulerDriver, Scheduler
+    import mesos_pb2
 
 TOTAL_TASKS = 2
 
 TASK_CPUS = 1
 TASK_MEM = 32
 
-class EscalationScheduler(mesos.Scheduler):
+class EscalationScheduler(Scheduler):
     def __init__(self):
         self.tasksLaunched = 0
         self.tasksFinished = 0
@@ -97,7 +102,7 @@ if __name__ == "__main__":
     framework.user = ""
     framework.name = "Escalation Framework (Python)"
 
-    driver = mesos.MesosSchedulerDriver(
+    driver = MesosSchedulerDriver(
         EscalationScheduler(),
         framework,
         sys.argv[1])
